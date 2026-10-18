@@ -14,6 +14,7 @@
     <div class="brand"><span class="brandmark">✳</span><div><strong>IdeaSpace</strong><small>مساحتك للأفكار</small></div></div>
     <button id="saveStatus" class="status" title="حالة الحفظ">● محفوظ</button>
   </header>
+  <div class="zoom-controls"><button id="zoomIn">＋</button><button id="zoomOut">−</button><button id="zoomReset">⌂</button></div>
   <main id="viewport" aria-label="لوحة الأفكار">
     <div id="world">
       <svg id="links" aria-hidden="true"></svg>
@@ -29,14 +30,16 @@
   </main>
   <nav class="toolbar" aria-label="أدوات اللوحة">
     <button data-action="note"><span>▤</span><small>ملاحظة</small></button>
+    <button data-action="text"><span>T</span><small>نص</small></button>
     <button data-action="draw"><span>✎</span><small>رسم</small></button>
     <button data-action="image"><span>▧</span><small>صورة</small></button>
     <button data-action="connect"><span>↗</span><small>ربط</small></button>
+    <button data-action="undo"><span>↶</span><small>تراجع</small></button>
     <button data-action="export"><span>⇧</span><small>تصدير</small></button>
     <button data-action="import"><span>⇩</span><small>استيراد</small></button>
   </nav>
   <input id="imagePicker" type="file" accept="image/*" hidden>
-  <input id="projectPicker" type="file" accept="application/json,.json" hidden>
+  <input id="projectPicker" type="file" accept="application/json,.json" hidden>\n  <input id="textPicker" type="file" accept="text/plain,.txt,.md,.csv" hidden>
   <div id="toast" role="status"></div>
   <script src="app.js"></script>
 </body>
