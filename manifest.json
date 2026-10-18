@@ -1,13 +1,13 @@
 {
   "name": "IdeaSpace — مساحة أفكار",
   "short_name": "IdeaSpace",
-  "description": "لوحة أفكار لا نهائية",
+  "description": "لوحة أفكار لا نهائية تحفظ بياناتها محلياً",
   "lang": "ar",
   "dir": "rtl",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#101522",
-  "theme_color": "#101522",
+  "background_color": "#111827",
+  "theme_color": "#111827",
   "orientation": "any"
 }
