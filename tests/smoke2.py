@@ -1,0 +1,41 @@
+# اختبار ميزات v3: python tests/smoke2.py
+import sys,threading,http.server,socketserver,os,functools
+from playwright.sync_api import sync_playwright
+root=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+socketserver.TCPServer.allow_reuse_address=True
+srv=socketserver.TCPServer(('127.0.0.1',8766),functools.partial(http.server.SimpleHTTPRequestHandler,directory=root));threading.Thread(target=srv.serve_forever,daemon=True).start()
+U='http://127.0.0.1:8766/index.html';res=[]
+def ck(n,c):res.append(bool(c));print(('PASS ' if c else 'FAIL ')+n)
+with sync_playwright() as p:
+  b=p.chromium.launch();cx=b.new_context(viewport={'width':412,'height':800},accept_downloads=True);cx.set_default_timeout(5000);pg=cx.new_page();errs=[];pg.on('pageerror',lambda e:errs.append(str(e)))
+  pg.goto(U)
+  def add(k):pg.click('[data-x=sheet]');pg.click(f'[data-x="add:{k}"]');pg.keyboard.press('Escape')
+  add('todo');add('table');add('frame')
+  ck('قائمة مهام',pg.locator('.it-todo input').count()==1)
+  ck('جدول بخلايا',pg.locator('.it-table td').count()==4)
+  ck('القسم خلف العناصر',pg.evaluate("document.querySelector('#items').firstChild.classList.contains('it-frame')"))
+  pg.set_input_files('#anyInput',[{'name':'a.pdf','mimeType':'application/pdf','buffer':b'%PDF-1.4 x'},{'name':'n.txt','mimeType':'text/plain','buffer':'مرحبا'.encode()}]);pg.wait_for_timeout(600)
+  ck('مرفق PDF: بطاقة + رابط تنزيل',pg.locator('.it-attach a.dl[download="a.pdf"]').count()==1)
+  ck('ملف نصي كمعاينة',pg.locator('.it-file').count()==1)
+  pg.once('dialog',lambda d:d.accept('مرحبا'));pg.click('[data-x=sheet]');pg.click('[data-x=search]');pg.wait_for_timeout(300)
+  ck('البحث يحدد النتيجة',pg.locator('.it-file.selected').count()==1)
+  pg.click('[data-x=sheet]')
+  with pg.expect_download() as d:pg.click('[data-x=md]')
+  t=open(d.value.path(),encoding='utf-8').read();ck('تصدير Markdown (مهام)','- [ ]' in t)
+  pg.click('[data-x=sheet]');pg.click('[data-x="tpl:0"]');pg.wait_for_timeout(300)
+  ck('قالب الخريطة: 4 عقد + 3 روابط',pg.locator('.it-mind').count()==4 and pg.locator('#lg path[data-l]').count()==3)
+  pg.locator('.it-mind').nth(0).click();pg.keyboard.press('Tab');pg.keyboard.type('ابن');pg.keyboard.press('Escape')
+  ck('Tab ينشئ فرعاً',pg.locator('.it-mind').count()==5)
+  pg.locator('.it-mind').nth(0).click();pg.click('#props [data-p=layout]');pg.wait_for_timeout(200)
+  ck('ترتيب تلقائي بلا أخطاء',not errs)
+  pg.click('#props [data-p=fold]');ck('طيّ الفروع',pg.locator('.it-mind:visible').count()==1)
+  pg3=b.new_context(viewport={'width':412,'height':800}).new_page();pg3.set_default_timeout(5000);pg3.goto(U);pg3.click('[data-x=sheet]');pg3.click('[data-x="tpl:0"]');pg3.wait_for_timeout(300)
+  pg3.on('dialog',lambda d:d.dismiss() if d.type=='confirm' else d.accept('سبب'))
+  bx=pg3.locator('#lg path[data-l]').first.bounding_box();pg3.mouse.click(bx['x']+bx['width']/2,bx['y']+bx['height']/2);pg3.wait_for_timeout(300)
+  ck('تسمية الرابط',pg3.locator('#lg text').count()==1)
+  pg2=b.new_context(viewport={'width':412,'height':800}).new_page();pg2.set_default_timeout(5000);pg2.goto(U);pg2.click('[data-x=sheet]');pg2.click('[data-x="tpl:1"]');pg2.wait_for_timeout(300)
+  nb=pg2.locator('.it-note').first;x0=nb.evaluate('e=>e.style.left');fb=pg2.locator('.it-frame .tx').first.bounding_box();cx_,cy_=fb['x']+fb['width']/2,fb['y']+fb['height']/2
+  pg2.mouse.move(cx_,cy_);pg2.mouse.down();pg2.mouse.move(cx_+60,cy_+20,steps=6);pg2.mouse.up()
+  ck('سحب عنوان القسم يحرّك محتواه',nb.evaluate('e=>e.style.left')!=x0)
+  ck('لا أخطاء في الصفحة',not errs and True);print(errs)
+sys.exit(0 if all(res) else 1)
