@@ -1,0 +1,8 @@
+{
+  "name": "Remix IdeaSpace",
+  "description": "The Ultimate Infinite Creative Workspace: infinite canvas, mind maps, visual notes, whiteboard, diagrams, drawing \u0026 project planning.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
