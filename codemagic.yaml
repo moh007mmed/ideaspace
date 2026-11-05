@@ -7,10 +7,8 @@ workflows:
       groups:
         - google_play
     scripts:
-      - name: Generate Gradle Wrapper and Build APK
+      - name: Build Android APK directly
         script: |
-          gradle wrapper
-          chmod +x gradlew
-          ./gradlew assembleDebug
+          gradle assembleDebug
     artifacts:
       - app/build/outputs/apk/debug/app-debug.apk
