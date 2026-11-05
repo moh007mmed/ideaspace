@@ -7,8 +7,14 @@ workflows:
       groups:
         - google_play
     scripts:
-      - name: Build Android APK directly
+      - name: Download Gradle 9.3.1 and Build APK
         script: |
+          # تحميل وتثبيت الإصدار المطلوب 9.3.1 مباشرة
+          curl -L -o gradle-9.3.1-bin.zip https://services.gradle.org/distributions/gradle-9.3.1-bin.zip
+          unzip -q gradle-9.3.1-bin.zip
+          export PATH=$PWD/gradle-9.3.1/bin:$PATH
+          
+          # بناء التطبيق بالإصدار الجديد
           gradle assembleDebug
     artifacts:
       - app/build/outputs/apk/debug/app-debug.apk
